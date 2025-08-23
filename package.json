@@ -1,0 +1,38 @@
+{
+  "name": "bloging",
+  "version": "1.0.0",
+  "description": "Bloging page backend code ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node server.js",
+    "dev":"nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karthi028/BlogingBackend.git"
+  },
+  "keywords": [
+    "express",
+    "react",
+    "mongoose",
+    "mongodb",
+    "node",
+    "tailwind"
+  ],
+  "author": "karthi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Karthi028/BlogingBackend/issues"
+  },
+  "homepage": "https://github.com/Karthi028/BlogingBackend#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
