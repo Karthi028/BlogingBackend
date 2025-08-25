@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
-const User = require('../models/user');
+const User = require('../models/User')
 const { sendTokenRes } = require('../utils/auth');
+const { NODE_ENV } = require('../utils/config');
 
 const register = async (req, res) => {
     try {
@@ -90,4 +91,34 @@ const login = async (req, res) => {
 
 }
 
-module.exports = { register, login };
+const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            user
+        });
+
+    } catch (error) {
+        console.error('Get Me error:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching user details'
+        });
+    }
+}
+
+const logout = async (req,res)=>{
+    res.clearCookie("token",{
+        httpOnly:true,
+        secure:NODE_ENV === "production",
+        sameSite:"lax"
+    });
+
+     res.status(200).json({
+        success: true,
+        message: 'Logged out successfully'
+    })
+}
+module.exports = { register, login, getMe,logout };
