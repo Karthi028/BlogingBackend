@@ -4,11 +4,11 @@ const { createDraft, getDrafts, getDraft, updateDraft, deleteDraft } = require('
 const draftpostRouter = express.Router();
 
 
-draftpostRouter.post('/drafts',createDraft);
-draftpostRouter.get('/drafts',getDrafts);
-draftpostRouter.get('/drafts/:id',getDraft);
-draftpostRouter.put('/drafts/:id',updateDraft);
-draftpostRouter.delete('/drafts/:id',deleteDraft);
+draftpostRouter.post('/drafts', createDraft);
+draftpostRouter.get('/drafts', getDrafts);
+draftpostRouter.get('/drafts/:id', getDraft);
+draftpostRouter.put('/drafts/:id', updateDraft);
+draftpostRouter.delete('/drafts/:id', deleteDraft);
 
 
 module.exports = draftpostRouter

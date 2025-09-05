@@ -31,9 +31,9 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  bio:{
+  bio: {
     type: String,
-    default:"Nor is there anyone who loves, pursues, or desires pain itself, because it is pain..."
+    default: "Nor is there anyone who loves, pursues, or desires pain itself, because it is pain..."
   }
 
 

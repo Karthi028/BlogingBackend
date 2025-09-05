@@ -9,13 +9,12 @@ const getcomments = async (req, res) => {
 
         const role = await req.auth().sessionClaims?.metadata?.role || "user";
 
+        const findQuery = { post: postId }
 
-        const findQuery = {post:postId}
-
-        if(role !== 'admin'){
+        if (role !== 'admin') {
             findQuery.$or = [
                 { isSpam: false },
-                { isSpam: { $exists: false } } 
+                { isSpam: { $exists: false } }
             ];
         }
 
@@ -126,7 +125,7 @@ const deleteComment = async (req, res) => {
 const isSpam = async (req, res) => {
     try {
         const clerkUserId = req.auth().userId;
-        const commentId  = req.params.commentId
+        const commentId = req.params.commentId
 
         if (!clerkUserId) {
             return res.status(401).json({ message: "Not authenticated" })
@@ -139,7 +138,7 @@ const isSpam = async (req, res) => {
         }
 
         if (role === 'admin') {
-            await Commentsmodel.findByIdAndUpdate({_id:commentId},{isSpam:true},{new: true, runValidators: true })
+            await Commentsmodel.findByIdAndUpdate({ _id: commentId }, { isSpam: true }, { new: true, runValidators: true })
             return res.status(200).json({ message: "Post Pinned as Spam" })
         }
 
@@ -150,7 +149,7 @@ const isSpam = async (req, res) => {
     }
 }
 
-const restoreSpam = async(req,res)=>{
+const restoreSpam = async (req, res) => {
     try {
         const clerkUserId = req.auth().userId;
         const { commentId } = req.params
@@ -166,7 +165,7 @@ const restoreSpam = async(req,res)=>{
         }
 
         if (role === 'admin') {
-            await Commentsmodel.findByIdAndUpdate({_id:commentId},{isSpam:false},{new: true, runValidators: true })
+            await Commentsmodel.findByIdAndUpdate({ _id: commentId }, { isSpam: false }, { new: true, runValidators: true })
             return res.status(200).json({ message: "Post Pinned as Spam" })
         }
 

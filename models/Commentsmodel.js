@@ -15,10 +15,10 @@ const CommentsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    isSpam:{
-        type:Boolean,
-        default:false
+    isSpam: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 
-module.exports = mongoose.model("Comment", CommentsSchema,"Comments");
+module.exports = mongoose.model("Comment", CommentsSchema, "Comments");

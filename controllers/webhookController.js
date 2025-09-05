@@ -16,61 +16,59 @@ const clerkHook = async (req, res) => {
     const payload = req.body;
     const headers = req.headers;
 
-        let evt;
-        try {
-            const wh = new Webhook(secret);
-            evt = wh.verify(payload, headers);
-        } catch (err) {
-            console.error('Webhook verification failed:', err.message);
-            return res.status(400).json({ success: false, message: 'Webhook signature verification failed.' });
-        }
+    let evt;
+    try {
+        const wh = new Webhook(secret);
+        evt = wh.verify(payload, headers);
+    } catch (err) {
+        console.error('Webhook verification failed:', err.message);
+        return res.status(400).json({ success: false, message: 'Webhook signature verification failed.' });
+    }
 
-        console.log(evt.data);
+    const { id: clerkUserId, username, email_addresses, image_url } = evt.data;
 
-        const { id: clerkUserId, username, email_addresses, image_url } = evt.data;
+    try {
+        switch (evt.type) {
+            case 'user.created':
+            case 'user.updated':
 
-        try {
-            switch (evt.type) {
-                case 'user.created':
-                case 'user.updated':
+                const email = email_addresses[0].email_address;
 
-                    const email = email_addresses[0].email_address;
+                await User.findOneAndUpdate({ clerkUserId },
+                    { email, img: image_url, username: username || email },
+                    { upsert: true, new: true, setDefaultsOnInsert: true }
+                );
 
-                    await User.findOneAndUpdate({ clerkUserId },
-                        { email, img: image_url, username: username || email },
-                        { upsert: true, new: true, setDefaultsOnInsert: true }
-                    );
+                console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
+                break;
+
+            case 'user.deleted':
+                const deleteUser = await User.findOne({ clerkUserId })
+
+                if (deleteUser) {
+                    await User.findByIdAndDelete(deleteUser._id)
+
+                    await Commentsmodel.deleteMany(deleteUser._id)
+                    await Postmodel.deleteMany(deleteUser._id)
 
                     console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
-                    break;
+                } else {
+                    console.log(`User not found for clerkUserId: ${clerkUserId}`);
+                }
+                break;
 
-                case 'user.deleted':
-                    const deleteUser = await User.findOne({ clerkUserId })
-
-                    if (deleteUser) {
-                        await User.findByIdAndDelete(deleteUser._id)
-
-                        await Commentsmodel.deleteMany(deleteUser._id)
-                        await Postmodel.deleteMany(deleteUser._id)
-
-                        console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
-                    } else {
-                        console.log(`User not found for clerkUserId: ${clerkUserId}`);
-                    }
-                    break;
-
-                default:
-                    console.log(`Unhandled event type: ${evt.type}`);
-                    break;
-            }
-
-            return res.status(200).json({ success: true, message: `Webhook event '${evt.type}' processed.` });
-
-        } catch (error) {
-
-            console.error(`Database operation failed for event '${evt.type}':`, error);
-            return res.status(500).json({ success: false, message: `Failed to process event '${evt.type}'.` });
+            default:
+                console.log(`Unhandled event type: ${evt.type}`);
+                break;
         }
+
+        return res.status(200).json({ success: true, message: `Webhook event '${evt.type}' processed.` });
+
+    } catch (error) {
+
+        console.error(`Database operation failed for event '${evt.type}':`, error);
+        return res.status(500).json({ success: false, message: `Failed to process event '${evt.type}'.` });
+    }
 
 }
 

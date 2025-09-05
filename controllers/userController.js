@@ -52,19 +52,19 @@ const subscribe = async (req, res) => {
     const ClerkUserId = req.auth().userId;
 
     try {
-        // Find the current user who is subscribing
+
         const currentUser = await User.findOne({ clerkUserId: ClerkUserId });
         if (!currentUser) {
             return res.status(404).json({ message: "Current user not found." });
         }
 
-        // Find the user being subscribed to
+
         const userToSubscribeTo = await User.findById(bloggerId);
         if (!userToSubscribeTo) {
             return res.status(404).json({ message: "User to subscribe to not found." });
         }
 
-        // Add the user to the subscribedTo list if not already present
+
         if (!currentUser.subscribedTo.includes(userToSubscribeTo._id)) {
             currentUser.subscribedTo.push(userToSubscribeTo._id);
             await currentUser.save();
@@ -82,19 +82,18 @@ const unsubscribe = async (req, res) => {
     const ClerkUserId = req.auth().userId;
 
     try {
-        // Find the current user who is unsubscribing
+
         const currentUser = await User.findOne({ clerkUserId: ClerkUserId });
         if (!currentUser) {
             return res.status(404).json({ message: "Current user not found." });
         }
 
-        // Find the user being unsubscribed from
+
         const userToUnsubscribeFrom = await User.findById(bloggerId);
         if (!userToUnsubscribeFrom) {
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Remove the user from the subscribedTo list
         currentUser.subscribedTo.pull(userToUnsubscribeFrom._id);
         await currentUser.save();
 
@@ -120,7 +119,6 @@ const getSubscriptions = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        // Return the list of subscriptions (users the current user is subscribed to).
         res.status(200).json(user.subscribedTo);
     } catch (err) {
         res.status(500).json({ message: "An error occurred while fetching subscriptions.", error: err.message });
@@ -149,12 +147,42 @@ const getNotifications = async (req, res) => {
             'user': { $in: subscribedIds },
             'createdAt': { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
         }).populate('user', "username").sort({ createdAt: -1 })
-        // Return the list of subscriptions (users the current user is subscribed to).
         res.status(200).json(posts);
     } catch (err) {
         res.status(500).json({ message: "An error occurred while fetching subscriptions.", error: err.message });
     }
 };
 
+const updateBio = async (req, res) => {
 
-module.exports = { getUserSavedPost, savePost, subscribe, unsubscribe, getSubscriptions, getNotifications }
+    try {
+
+        const clerkUserId = req.auth.userId;
+        const { bio } = req.body;
+        if (!bio) {
+            return res.status(400).json({ success: false, message: "Bio content is required." });
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { clerkUserId: clerkUserId },
+            { bio: bio },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Bio updated successfully!",
+            user: updatedUser
+        });
+
+    } catch (err) {
+        next(err);
+    }
+
+}
+
+
+module.exports = { getUserSavedPost, savePost, subscribe, unsubscribe, getSubscriptions, getNotifications, updateBio }

@@ -1,6 +1,6 @@
 const Post = require("../models/Postmodel");
 
-const increasseVisit = async(req,res,next)=>{
+const increasseVisit = async (req, res, next) => {
     const slug = req.params.slug;
     await Post.findOneAndUpdate({ slug }, { $inc: { views: 1 } });
 

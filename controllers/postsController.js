@@ -130,8 +130,6 @@ const createPost = async (req, res) => {
             counter++;
         }
 
-        console.log(req.body);
-
         const newPost = new Post({
             title,
             slug,
@@ -153,11 +151,10 @@ const createPost = async (req, res) => {
 
 const updateTags = async (req, res) => {
 
-    // Correctly get the slug from the request parameters
+
     const { slug } = req.params;
     const { tags } = req.body;
 
-    // Check if a slug was provided
     if (!slug) {
         return res.status(400).json({ message: "Post slug is missing from the request." });
     }
@@ -174,14 +171,9 @@ const updateTags = async (req, res) => {
         return res.status(404).json({ message: "User not found" });
     }
 
-    // Log the user IDs to help with debugging
-    console.log(`Authenticated Clerk User ID: ${clerkUserId}`);
-    console.log(`Found User's MongoDB ID: ${existingUser._id}`);
-    console.log(`Attempting to update post with slug: ${slug}`);
 
     try {
-        // Use findOneAndUpdate to find the post by both slug and the user's ID
-        // This ensures that only the author can update the tags
+
         const updatedPost = await Post.findOneAndUpdate(
             { slug: slug, user: existingUser._id },
             { $set: { tags: tags } },
@@ -308,7 +300,6 @@ const createDraft = async (req, res) => {
 };
 
 const getDrafts = async (req, res) => {
-    console.log("Received a request to fetch drafts.");
     try {
         const clerkUserId = req.auth().userId;
 
@@ -386,7 +377,7 @@ const updateDraft = async (req, res) => {
         const updatedDraft = await Draftpostmodel.findOneAndUpdate(
             { _id: id, user: existingUser._id },
             { $set: updatedData },
-            { new: true, runValidators: true } // `new: true` returns the updated document
+            { new: true, runValidators: true }
         );
 
         if (!updatedDraft) {
@@ -448,15 +439,13 @@ const likePosts = async (req, res) => {
         const userIndex = post.likes.indexOf(userId);
 
         if (userIndex === -1) {
-            // User has not liked the post, so add their ID
             post.likes.push(userId);
         } else {
-            // User has already liked the post, so remove their ID
             post.likes.splice(userIndex, 1);
         }
 
         await post.save();
-        res.status(200).json(post.likes.length); // Return the new like count
+        res.status(200).json(post.likes.length);
     } catch (err) {
         res.status(500).json("An error occurred: " + err.message);
     }
