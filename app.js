@@ -6,7 +6,7 @@ const userRouter = require('./routers/userRouter');
 const postRouter = require('./routers/postRouter');
 const commentsRouter = require('./routers/commentsRouter');
 const webhookRouter = require('./routers/webhookRouter');
-const { clerkMiddleware } = require('@clerk/express');
+const { clerkMiddleware, requireAuth } = require('@clerk/express');
 const cors = require('cors');
 const draftpostRouter = require('./routers/draftpostRouter');
 
@@ -31,9 +31,9 @@ app.use(logger);
 
 
 
-app.use('/api/v1/users', userRouter)
+app.use('/api/v1/users',requireAuth(), userRouter)
 app.use('/api/v1/posts', postRouter)
-app.use('/api/v1/Dposts', draftpostRouter)
+app.use('/api/v1/Dposts',requireAuth(),draftpostRouter)
 app.use('/api/v1/comments', commentsRouter)
 
 

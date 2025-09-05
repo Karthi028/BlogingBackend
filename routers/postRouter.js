@@ -7,12 +7,12 @@ const postRouter = express.Router();
 
 
 postRouter.get('/upload',imgUpload)
-postRouter.post('/',createPost);
+postRouter.post('/',requireAuth(),createPost);
 postRouter.get('/',getPosts);
 postRouter.get('/:slug',increasseVisit,getPost);
-postRouter.put('/:slug',updateTags);
-postRouter.delete('/:id',deletePost);
-postRouter.put('/feature/Star',featurePost);
+postRouter.put('/:slug',requireAuth(),updateTags);
+postRouter.delete('/:id',requireAuth(),deletePost);
+postRouter.put('/feature/Star',requireAuth(),featurePost);
 postRouter.put('/like/:postId',requireAuth(),likePosts);
 
 module.exports = postRouter
