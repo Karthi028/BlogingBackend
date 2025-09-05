@@ -67,7 +67,7 @@ const getPosts = async (req, res) => {
 
 
         const posts = await Post.find(query)
-            .populate('user', "username")
+            .populate('user', "username bio img clerkUserId")
             .sort(sortObj)
             .limit(limit)
             .skip((page - 1) * limit);
@@ -84,9 +84,17 @@ const getPosts = async (req, res) => {
 const getPost = async (req, res) => {
     try {
         const slug = req.params.slug
-        const post = await Post.findOne({ slug }).populate('user', "clerkUserId username img")
+        const post = await Post.findOne({ slug }).populate('user', "clerkUserId username img bio")
 
-        res.status(200).json(post);
+        if (!post) {
+            return res.status(404).json("Post not found");
+        }
+
+        const commentCount = await Comment.countDocuments({ post: post._id });
+
+        const postWithComments = { ...post.toObject(), comments: commentCount };
+
+        res.status(200).json(postWithComments);
 
     } catch (error) {
         res.status(400).json({ message: "server error during fetching post", error: error.message })

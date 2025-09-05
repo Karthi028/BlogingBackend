@@ -30,7 +30,11 @@ const UserSchema = new mongoose.Schema({
   subscribedTo: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  bio:{
+    type: String,
+    default:"Nor is there anyone who loves, pursues, or desires pain itself, because it is pain..."
+  }
 
 
 }, { timestamps: true })
