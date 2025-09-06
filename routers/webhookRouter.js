@@ -1,6 +1,6 @@
 const express = require('express')
-const bodyParser = require('body-parser')
 const { clerkHook } = require('../controllers/webhookController')
+const bodyParser = require('body-parser')
 
 const webhookRouter = express.Router()
 

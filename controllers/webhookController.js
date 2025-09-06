@@ -48,8 +48,8 @@ const clerkHook = async (req, res) => {
                 if (deleteUser) {
                     await User.findByIdAndDelete(deleteUser._id)
 
-                    await Commentsmodel.deleteMany(deleteUser._id)
-                    await Postmodel.deleteMany(deleteUser._id)
+                    await Commentsmodel.deleteMany({ userId: deleteUser._id });
+                    await Postmodel.deleteMany({ userId: deleteUser._id });
 
                     console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
                 } else {

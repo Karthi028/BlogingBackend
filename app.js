@@ -29,8 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(logger);
 
-
-
 app.use('/api/v1/users', requireAuth(), userRouter)
 app.use('/api/v1/posts', postRouter)
 app.use('/api/v1/Dposts', requireAuth(), draftpostRouter)
