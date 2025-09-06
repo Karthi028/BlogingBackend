@@ -6,14 +6,21 @@ const userRouter = require('./routers/userRouter');
 const postRouter = require('./routers/postRouter');
 const commentsRouter = require('./routers/commentsRouter');
 const webhookRouter = require('./routers/webhookRouter');
-const { clerkMiddleware, requireAuth } = require('@clerk/express');
+const { requireAuth, clerkMiddleware } = require('@clerk/express');
 const cors = require('cors');
 const draftpostRouter = require('./routers/draftpostRouter');
-
+const { URL_FRONT } = require('./utils/config');
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin:URL_FRONT,
+  optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions));
+
+app.use(clerkMiddleware());
 
 app.use('/api/v1/webhooks', webhookRouter);
 

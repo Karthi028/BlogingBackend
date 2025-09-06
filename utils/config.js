@@ -11,6 +11,7 @@ const CLERK_SECRET = process.env.CLERK_SECRET;
 const IMAGEKIT_PUBLIC_KEY = process.env.IMAGEKIT_PUBLIC_KEY;
 const IMAGEKIT_PRIVATE_KEY = process.env.IMAGEKIT_PRIVATE_KEY;
 const IMAGEKIT_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
+const URL_FRONT = process.env.URL_FRONT
 
 module.exports = {
     MONGODB_URI,
@@ -21,5 +22,6 @@ module.exports = {
     CLERK_SECRET,
     IMAGEKIT_PUBLIC_KEY,
     IMAGEKIT_PRIVATE_KEY,
-    IMAGEKIT_URL_ENDPOINT
+    IMAGEKIT_URL_ENDPOINT,
+    URL_FRONT
 }

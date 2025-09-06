@@ -3,9 +3,12 @@ const Comment = require("../models/Commentsmodel");
 const User = require("../models/Usermodel");
 
 const getcomments = async (req, res) => {
+
     try {
         const postId = req.params.postId;
         const clerkUserId = req.auth().userId;
+
+        console.log("clerkUserId:",clerkUserId);
 
         const role = await req.auth().sessionClaims?.metadata?.role || "user";
 
@@ -57,11 +60,11 @@ const addComment = async (req, res) => {
 }
 
 const editComment = async (req, res) => {
+    console.log("Editing Comment")
     try {
 
         const clerkUserId = req.auth().userId;
         const Id = req.params.Id;
-
 
         if (!clerkUserId) {
             return res.status(401).json({ message: "Not authenticated" })
@@ -74,6 +77,7 @@ const editComment = async (req, res) => {
         }
 
         const { desc } = req.body;
+        console.log("REQBODY:",req.body);
         const editComment = await Comment.findOneAndUpdate(
             { _id: Id, user: existingUser._id },
             { desc },
