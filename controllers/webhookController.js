@@ -3,6 +3,7 @@ const { CLERK_SECRET } = require("../utils/config");
 const User = require("../models/Usermodel");
 const Commentsmodel = require("../models/Commentsmodel");
 const Postmodel = require("../models/Postmodel");
+const Draftpostmodel = require("../models/Draftpostmodel");
 
 const clerkHook = async (req, res) => {
 
@@ -59,6 +60,7 @@ const clerkHook = async (req, res) => {
 
                     await Commentsmodel.deleteMany({ user: deleteUser._id });
                     await Postmodel.deleteMany({ user: deleteUser._id });
+                    await Draftpostmodel.deleteMany({user: deleteUser._id});
 
                     console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserID}`);
                 } else {
