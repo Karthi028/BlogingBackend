@@ -25,6 +25,8 @@ const clerkHook = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Webhook signature verification failed.' });
     }
 
+    console.log('Incoming Clerk webhook event:', evt);
+
     const { id: clerkUserId, username, email_addresses, image_url } = evt.data;
 
     try {
@@ -43,22 +45,18 @@ const clerkHook = async (req, res) => {
                 break;
 
             case 'user.deleted':
-                const deleteUser = await User.findOne({ clerkUserId })
+                const deleteUser = await User.findOne({ clerkUserId });
 
                 if (deleteUser) {
-                    await User.findByIdAndDelete(deleteUser._id)
+                    await User.findByIdAndDelete(deleteUser._id);
 
-                    await Commentsmodel.deleteMany({ userId: deleteUser._id });
-                    await Postmodel.deleteMany({ userId: deleteUser._id });
+                    await Commentsmodel.deleteMany({ user: deleteUser._id });
+                    await Postmodel.deleteMany({ user: deleteUser._id });
 
                     console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
                 } else {
                     console.log(`User not found for clerkUserId: ${clerkUserId}`);
                 }
-                break;
-
-            default:
-                console.log(`Unhandled event type: ${evt.type}`);
                 break;
         }
 
