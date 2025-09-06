@@ -27,25 +27,32 @@ const clerkHook = async (req, res) => {
 
     console.log('Incoming Clerk webhook event:', evt);
 
-    const { id: clerkUserId, username, email_addresses, image_url } = evt.data;
+    const { username, email_addresses, image_url } = evt.data;
+    const clerkUserID = evt.data.id;
 
     try {
         switch (evt.type) {
             case 'user.created':
             case 'user.updated':
 
-                const email = email_addresses[0].email_address;
+                const email = email_addresses.length > 0 ? email_addresses[0].email_address : null;
 
-                await User.findOneAndUpdate({ clerkUserId },
-                    { email, img: image_url, username: username || email },
-                    { upsert: true, new: true, setDefaultsOnInsert: true }
-                );
+                if (email) {
+                    await User.findOneAndUpdate({ email },
+                        { clerkUserId: clerkUserID, img: image_url, username: username || email },
+                        { upsert: true, new: true, setDefaultsOnInsert: true }
+                    );
 
-                console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
+                    console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserID}`);
+                    break;
+                } else {
+                    console.warn(`Webhook event '${evt.type}' received with no email address. Skipping.`);
+                }
+
                 break;
 
             case 'user.deleted':
-                const deleteUser = await User.findOne({ clerkUserId });
+                const deleteUser = await User.findOne({ clerkUserId:clerkUserID });
 
                 if (deleteUser) {
                     await User.findByIdAndDelete(deleteUser._id);
@@ -53,9 +60,9 @@ const clerkHook = async (req, res) => {
                     await Commentsmodel.deleteMany({ user: deleteUser._id });
                     await Postmodel.deleteMany({ user: deleteUser._id });
 
-                    console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserId}`);
+                    console.log(`Successfully processed '${evt.type}' event for user: ${clerkUserID}`);
                 } else {
-                    console.log(`User not found for clerkUserId: ${clerkUserId}`);
+                    console.log(`User not found for clerkUserId: ${clerkUserID}`);
                 }
                 break;
         }

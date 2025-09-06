@@ -1,3 +1,4 @@
+const { clerkClient } = require("@clerk/express");
 const Postmodel = require("../models/Postmodel");
 const User = require("../models/Usermodel");
 
@@ -184,5 +185,40 @@ const updateBio = async (req, res) => {
 
 }
 
+const syncUser = async (req, res) => {
+    const { clerkUserId } = req.body;
 
-module.exports = { getUserSavedPost, savePost, subscribe, unsubscribe, getSubscriptions, getNotifications, updateBio }
+    if (!clerkUserId) {
+        return res.status(400).json({ success: false, message: 'clerkUserId is required.' });
+    }
+
+    try {
+        const clerkUser = await clerkClient.users.getUser(clerkUserId);
+
+        console.log(clerkUser._User);
+
+        const { username, emailAddresses , id, imageUrl } = clerkUser;
+        const email = emailAddresses?.length > 0 ? emailAddresses[0].emailAddress : null;
+
+        if (email) {
+            await User.findOneAndUpdate(
+                { email },
+                { clerkUserId:id, img: imageUrl, username: username || email },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+
+            console.log(`Successfully synced user: ${clerkUserId}`);
+            return res.status(200).json({ success: true, message: 'User data synced successfully.' });
+        } else {
+            console.warn(`User fetched with no email address. Skipping sync.`);
+            return res.status(400).json({ success: false, message: 'User has no email address.' });
+        }
+
+    } catch (error) {
+        console.error('Error syncing user:', error);
+        return res.status(500).json({ success: false, message: 'Failed to sync user data.' });
+    }
+}
+
+
+module.exports = { getUserSavedPost, savePost, subscribe, unsubscribe,syncUser, getSubscriptions, getNotifications, updateBio }
