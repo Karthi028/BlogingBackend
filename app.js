@@ -14,13 +14,13 @@ const draftpostRouter = require('./routers/draftpostRouter');
 const app = express();
 
 app.use(cors());
+
+app.use('/api/v1/webhooks', webhookRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(logger);
-
-
-app.use('/api/v1/webhooks', webhookRouter);
 
 app.use('/api/v1/users', requireAuth(), userRouter)
 app.use('/api/v1/posts', postRouter)
